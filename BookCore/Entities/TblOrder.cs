@@ -12,13 +12,15 @@ namespace BookCore.Entities
 
         public string OrderId { get; set; } = null!;
         public string? UserId { get; set; }
-        public int? ReceiverDetailId { get; set; }
         public string? TotalMoney { get; set; }
         public string? Quantity { get; set; }
         public string? OrderDate { get; set; }
         public string? StatusId { get; set; }
+        public string? Name { get; set; }
+        public string? Phone { get; set; }
+        public string? Address { get; set; }
+        public string? Email { get; set; }
 
-        public virtual TblReceiverDetail? ReceiverDetail { get; set; }
         public virtual TblUser? User { get; set; }
         public virtual ICollection<TblOrderDetail> TblOrderDetails { get; set; }
     }

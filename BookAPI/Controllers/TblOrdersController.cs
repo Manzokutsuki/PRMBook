@@ -14,9 +14,9 @@ namespace BookAPI.Controllers
     [ApiController]
     public class TblOrdersController : ControllerBase
     {
-        private readonly BookDbContext _context;
+        private readonly BookContext _context;
 
-        public TblOrdersController(BookDbContext context)
+        public TblOrdersController(BookContext context)
         {
             _context = context;
         }
@@ -88,7 +88,7 @@ namespace BookAPI.Controllers
         {
           if (_context.TblOrders == null)
           {
-              return Problem("Entity set 'BookDbContext.TblOrders'  is null.");
+              return Problem("Entity set 'BookContext.TblOrders'  is null.");
           }
             _context.TblOrders.Add(tblOrder);
             try

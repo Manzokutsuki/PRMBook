@@ -17,9 +17,9 @@ namespace BookAPI.Controllers
     public class TblUsersController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly BookDbContext _context;
+        private readonly BookContext _context;
 
-        public TblUsersController(IMapper mapper, BookDbContext context)
+        public TblUsersController(IMapper mapper, BookContext context)
         {
             this._mapper = mapper;
             this._context = context;
@@ -27,18 +27,26 @@ namespace BookAPI.Controllers
 
         // GET: api/TblUsers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TblUser>>> GetTblUsers()
+        public async Task<ActionResult<IEnumerable<BasicUserDto>>> GetTblUsers()
         {
           if (_context.TblUsers == null)
           {
               return NotFound();
           }
-            return await _context.TblUsers.ToListAsync();
+            var userList = await _context.TblUsers.ToListAsync();
+            var userDtoList = new List<BasicUserDto>();
+            foreach (var user in userList)
+            {
+                var temp = _mapper.Map<BasicUserDto>(user);
+                userDtoList.Add(temp);
+            }
+
+            return userDtoList;
         }
 
         // GET: api/TblUsers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TblUser>> GetTblUser(string id)
+        public async Task<ActionResult<BasicUserDto>> GetTblUser(string id)
         {
           if (_context.TblUsers == null)
           {
@@ -51,55 +59,69 @@ namespace BookAPI.Controllers
                 return NotFound();
             }
 
-            return tblUser;
+            BasicUserDto basicUserDto = _mapper.Map<BasicUserDto>(tblUser);
+
+            return basicUserDto;
         }
 
         // PUT: api/TblUsers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTblUser(string id, TblUser tblUser)
+        public async Task<IActionResult> PutTblUser(string id, BasicUserDto basicUserDto)
         {
-            if (id != tblUser.UserId)
+            if (id.Equals(basicUserDto.UserId) == false)
             {
                 return BadRequest();
             }
 
-            _context.Entry(tblUser).State = EntityState.Modified;
+            if (!TblUserExists(id))
+            {
+                return NotFound();
+            }
+
+            TblUser tblUser = _mapper.Map<TblUser>(basicUserDto);
+
+            //_context.Entry(tblUser).State = EntityState.Modified;
 
             try
             {
+                _context.TblUsers.Update(tblUser);
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                if (!TblUserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw (ex);
             }
 
             return NoContent();
         }
 
-        // POST: api/TblUsers
+        // POST: api/TblUsers/signup
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Route("/api/[controller]/signup")]
         [HttpPost]
         public async Task<ActionResult<BasicUserDto>> PostTblUser(BasicUserDto basicUserDto)
         {
           if (_context.TblUsers == null)
           {
-              return Problem("Entity set 'BookDbContext.TblUsers'  is null.");
+              return Problem("Entity set 'BookContext.TblUsers'  is null.");
           }
+          if (AccountExists(basicUserDto.Email, basicUserDto.Uid))
+            {
+                return Conflict("User exists");
+            }
             var user = _mapper.Map<TblUser>(basicUserDto);
             user.UserId = System.Guid.NewGuid().ToString();
-            _context.TblUsers.Add(user);
             try
             {
+                var receiver = AddReceiver(user);
+                var cart = AddCart(user);
+                user.TblReceivers.Add(receiver);
+                user.TblCarts.Add(cart);
+                _context.TblUsers.Add(user);
                 await _context.SaveChangesAsync();
+                AddReceiverDetail(user);
+                return CreatedAtAction("GetTblUser", new { id = user.UserId }, user);
             }
             catch (DbUpdateException)
             {
@@ -112,8 +134,25 @@ namespace BookAPI.Controllers
                     throw;
                 }
             }
+        }
 
-            return CreatedAtAction("GetTblUser", new { id = user.UserId }, user);
+        //POST: api/TblUsers/signin
+        [Route("/api/[controller]/signin")]
+        [HttpPost()]
+        public async Task<ActionResult<BasicUserDto>> SignIn(LoginUserDto loginUser)
+        {
+            if (_context.TblUsers == null)
+            {
+                return NotFound();
+            }
+            var tblUser = await _context.TblUsers.SingleAsync(temp => temp.Email.ToLower().Equals(loginUser.Email)
+            || temp.Uid.Equals(loginUser.Uid));
+            if (tblUser == null)
+            {
+                return NotFound();
+            }
+            var basicUserDto = _mapper.Map<BasicUserDto>(tblUser);
+            return basicUserDto;
         }
 
         // DELETE: api/TblUsers/5
@@ -139,6 +178,49 @@ namespace BookAPI.Controllers
         private bool TblUserExists(string id)
         {
             return (_context.TblUsers?.Any(e => e.UserId == id)).GetValueOrDefault();
+        }
+
+        private bool AccountExists(String? email, String? uid)
+        {
+            return (_context.TblUsers?
+                .Any(e => e.Email.Equals(email) || e.Uid.Equals(uid)))
+                .GetValueOrDefault();
+        }
+
+        private TblReceiver AddReceiver(TblUser user)
+        {
+            int? index = (from temp in _context.TblReceivers
+                         select temp.Id).Count();
+            index = index > 0 || index != null ? ++index : 1;
+            TblReceiver receiver = new TblReceiver()
+            {
+                UserId = user.UserId
+            };
+            return receiver;
+        }
+
+        private void AddReceiverDetail(TblUser user)
+        {
+            var index = _context.TblReceivers.Max(r => r.Id);
+            TblReceiverDetail receiverDetail = new TblReceiverDetail()
+            {
+                Address = user.Address,
+                Email = user.Email,
+                Name = user.Name,
+                Phone = user.Phone,
+                ReceiverId = index,
+            };
+            _context.TblReceiverDetails.Add(receiverDetail);
+            _context.SaveChanges();
+        }
+
+        private TblCart AddCart(TblUser user)
+        {
+            TblCart cart = new TblCart()
+            {
+                UserId = user.UserId
+            };
+            return cart;
         }
     }
 }

@@ -21,11 +21,12 @@ namespace BookCore.Entities
         public string? Description { get; set; }
         public string? Image { get; set; }
         public string? Language { get; set; }
-        public int? Size { get; set; }
+        public string? Size { get; set; }
         public int? Page { get; set; }
         public int? ReleaseYear { get; set; }
         public DateTime? CreateDate { get; set; }
         public byte? Status { get; set; }
+        public string? AuthorName { get; set; }
 
         public virtual TblCategory? Category { get; set; }
         public virtual ICollection<TblOrderDetail> TblOrderDetails { get; set; }

@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using BookCore.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using BookCore.Entities;
 
 namespace BookCore.Data
 {
-    public partial class BookDbContext : DbContext
+    public partial class BookContext : DbContext
     {
-        public BookDbContext()
+        public BookContext()
         {
         }
 
-        public BookDbContext(DbContextOptions<BookDbContext> options)
+        public BookContext(DbContextOptions<BookContext> options)
             : base(options)
         {
         }
@@ -47,6 +47,10 @@ namespace BookCore.Data
                     .IsUnicode(false)
                     .HasColumnName("ID");
 
+                entity.Property(e => e.AuthorName)
+                    .HasMaxLength(50)
+                    .HasColumnName("authorName");
+
                 entity.Property(e => e.CategoryId)
                     .HasMaxLength(50)
                     .IsUnicode(false)
@@ -68,7 +72,7 @@ namespace BookCore.Data
                     .HasColumnName("language");
 
                 entity.Property(e => e.Name)
-                    .HasMaxLength(25)
+                    .HasMaxLength(50)
                     .HasColumnName("name");
 
                 entity.Property(e => e.Page).HasColumnName("page");
@@ -88,7 +92,10 @@ namespace BookCore.Data
 
                 entity.Property(e => e.ReleaseYear).HasColumnName("releaseYear");
 
-                entity.Property(e => e.Size).HasColumnName("size");
+                entity.Property(e => e.Size)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("size");
 
                 entity.Property(e => e.Status).HasColumnName("status");
 
@@ -187,17 +194,35 @@ namespace BookCore.Data
                     .IsUnicode(false)
                     .HasColumnName("orderID");
 
+                entity.Property(e => e.Address)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("address");
+
+                entity.Property(e => e.Email)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("email");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("name");
+
                 entity.Property(e => e.OrderDate)
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("orderDate");
 
+                entity.Property(e => e.Phone)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("phone");
+
                 entity.Property(e => e.Quantity)
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("quantity");
-
-                entity.Property(e => e.ReceiverDetailId).HasColumnName("receiverDetailID");
 
                 entity.Property(e => e.StatusId)
                     .HasMaxLength(50)
@@ -213,11 +238,6 @@ namespace BookCore.Data
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("userID");
-
-                entity.HasOne(d => d.ReceiverDetail)
-                    .WithMany(p => p.TblOrders)
-                    .HasForeignKey(d => d.ReceiverDetailId)
-                    .HasConstraintName("FK_tblOrder_tblReceiverDetail");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.TblOrders)
@@ -304,7 +324,6 @@ namespace BookCore.Data
 
                 entity.Property(e => e.Address)
                     .HasMaxLength(50)
-                    .IsUnicode(false)
                     .HasColumnName("address");
 
                 entity.Property(e => e.Email)
@@ -314,7 +333,6 @@ namespace BookCore.Data
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(50)
-                    .IsUnicode(false)
                     .HasColumnName("name");
 
                 entity.Property(e => e.Phone)
@@ -344,7 +362,6 @@ namespace BookCore.Data
 
                 entity.Property(e => e.Address)
                     .HasMaxLength(50)
-                    .IsUnicode(false)
                     .HasColumnName("address");
 
                 entity.Property(e => e.CreateDate)
@@ -359,7 +376,6 @@ namespace BookCore.Data
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(50)
-                    .IsUnicode(false)
                     .HasColumnName("name");
 
                 entity.Property(e => e.Phone)

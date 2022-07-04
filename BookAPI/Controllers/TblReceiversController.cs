@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookCore.Data;
-using BookCore.Entities;
+using BookCore.Dtos.Receiver;
+using AutoMapper;
 
 namespace BookAPI.Controllers
 {
@@ -14,27 +15,46 @@ namespace BookAPI.Controllers
     [ApiController]
     public class TblReceiversController : ControllerBase
     {
-        private readonly BookDbContext _context;
+        private readonly BookContext _context;
+        private readonly IMapper _mapper;
 
-        public TblReceiversController(BookDbContext context)
+        public TblReceiversController(BookContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/TblReceivers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TblReceiver>>> GetTblReceivers()
+        public async Task<ActionResult<IEnumerable<ReceiverDto>>> GetTblReceivers()
         {
           if (_context.TblReceivers == null)
           {
               return NotFound();
           }
-            return await _context.TblReceivers.ToListAsync();
+
+          var receiverList = await _context.TblReceivers.ToListAsync();
+          var receiverDtoList = new List<ReceiverDto>();
+            if (receiverList.Count > 0)
+            {
+                foreach (var receiver in receiverList)
+                {
+                    var tempReceiverDto = _mapper.Map<ReceiverDto>(receiver);
+                    var tempDetailList = GetDetailList(receiver.Id);
+                    if (tempDetailList != null)
+                    {
+                        tempReceiverDto.Detail = tempDetailList;
+                    }
+                    receiverDtoList.Add(tempReceiverDto);
+                }
+            }
+
+            return receiverDtoList;
         }
 
         // GET: api/TblReceivers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TblReceiver>> GetTblReceiver(int id)
+        public async Task<ActionResult<ReceiverDto>> GetTblReceiver(int id)
         {
           if (_context.TblReceivers == null)
           {
@@ -46,79 +66,31 @@ namespace BookAPI.Controllers
             {
                 return NotFound();
             }
+            var receiverDto = _mapper.Map<ReceiverDto>(tblReceiver);
+            var tempDetailList = GetDetailList(id);
+            if (tempDetailList != null)
+            {
+                receiverDto.Detail = tempDetailList;
+            }
 
-            return tblReceiver;
+            return receiverDto;
         }
 
-        // PUT: api/TblReceivers/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutTblReceiver(int id, TblReceiver tblReceiver)
+        private List<ReceiverDetailDto>? GetDetailList(int? ReceiverId)
         {
-            if (id != tblReceiver.Id)
+            var list = _context.TblReceiverDetails.Where(detail =>
+            detail.ReceiverId.Equals(ReceiverId)).ToList();
+            if (list.Count > 0)
             {
-                return BadRequest();
-            }
-
-            _context.Entry(tblReceiver).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TblReceiverExists(id))
+                var detailDto = new List<ReceiverDetailDto>();
+                foreach(var item in list)
                 {
-                    return NotFound();
+                    var temp = _mapper.Map<ReceiverDetailDto>(item);
+                    detailDto.Add(temp);
                 }
-                else
-                {
-                    throw;
-                }
+                return detailDto;
             }
-
-            return NoContent();
-        }
-
-        // POST: api/TblReceivers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<TblReceiver>> PostTblReceiver(TblReceiver tblReceiver)
-        {
-          if (_context.TblReceivers == null)
-          {
-              return Problem("Entity set 'BookDbContext.TblReceivers'  is null.");
-          }
-            _context.TblReceivers.Add(tblReceiver);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetTblReceiver", new { id = tblReceiver.Id }, tblReceiver);
-        }
-
-        // DELETE: api/TblReceivers/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTblReceiver(int id)
-        {
-            if (_context.TblReceivers == null)
-            {
-                return NotFound();
-            }
-            var tblReceiver = await _context.TblReceivers.FindAsync(id);
-            if (tblReceiver == null)
-            {
-                return NotFound();
-            }
-
-            _context.TblReceivers.Remove(tblReceiver);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool TblReceiverExists(int id)
-        {
-            return (_context.TblReceivers?.Any(e => e.Id == id)).GetValueOrDefault();
+            return null;
         }
     }
 }
