@@ -7,6 +7,7 @@ namespace BookCore.Entities
     {
         public TblBook()
         {
+            TblCartItems = new HashSet<TblCartItem>();
             TblOrderDetails = new HashSet<TblOrderDetail>();
         }
 
@@ -29,6 +30,7 @@ namespace BookCore.Entities
         public string? AuthorName { get; set; }
 
         public virtual TblCategory? Category { get; set; }
+        public virtual ICollection<TblCartItem> TblCartItems { get; set; }
         public virtual ICollection<TblOrderDetail> TblOrderDetails { get; set; }
     }
 }

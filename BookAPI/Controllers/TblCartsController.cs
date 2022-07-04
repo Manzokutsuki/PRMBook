@@ -53,92 +53,31 @@ namespace BookAPI.Controllers
         }
 
         // GET: api/TblCarts/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<TblCart>> GetTblCart(int id)
+        [HttpGet("{userId}")]
+        public async Task<ActionResult<CartDto>> GetTblCart(string userId)
         {
+            userId = userId.ToLower().Trim();
           if (_context.TblCarts == null)
           {
               return NotFound();
           }
-            var tblCart = await _context.TblCarts.FindAsync(id);
+            var tblCart = await _context.TblCarts.SingleOrDefaultAsync(cart =>
+            cart.UserId.ToLower().Equals(userId));
 
             if (tblCart == null)
             {
                 return NotFound();
             }
 
-            return tblCart;
+            return GetCartDto(tblCart);
         }
 
-        // PUT: api/TblCarts/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutTblCart(int id, TblCart tblCart)
+        private CartDto GetCartDto(TblCart tblCart)
         {
-            if (id != tblCart.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(tblCart).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TblCartExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/TblCarts
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<TblCart>> PostTblCart(TblCart tblCart)
-        {
-          if (_context.TblCarts == null)
-          {
-              return Problem("Entity set 'BookContext.TblCarts'  is null.");
-          }
-            _context.TblCarts.Add(tblCart);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetTblCart", new { id = tblCart.Id }, tblCart);
-        }
-
-        // DELETE: api/TblCarts/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTblCart(int id)
-        {
-            if (_context.TblCarts == null)
-            {
-                return NotFound();
-            }
-            var tblCart = await _context.TblCarts.FindAsync(id);
-            if (tblCart == null)
-            {
-                return NotFound();
-            }
-
-            _context.TblCarts.Remove(tblCart);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool TblCartExists(int id)
-        {
-            return (_context.TblCarts?.Any(e => e.Id == id)).GetValueOrDefault();
+            var cartDto = _mapper.Map<CartDto>(tblCart);
+            var tempCartItems = GetCartItems(tblCart.Id);
+            cartDto.cartItems = tempCartItems;
+            return cartDto;
         }
 
         private List<CartItemDto>? GetCartItems(int Id)

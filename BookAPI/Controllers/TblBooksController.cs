@@ -70,12 +70,14 @@ namespace BookAPI.Controllers
         // PUT: api/TblBooks/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTblBook(string id, TblBook tblBook)
+        public async Task<IActionResult> PutTblBook(string id, BasicBookInfoDto basicBook)
         {
-            if (id != tblBook.Id)
+            if (id != basicBook.Id)
             {
                 return BadRequest();
             }
+
+            var tblBook = _mapper.Map<TblBook>(basicBook);
 
             _context.Entry(tblBook).State = EntityState.Modified;
 

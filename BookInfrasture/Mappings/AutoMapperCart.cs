@@ -34,7 +34,17 @@ namespace BookInfrasture.Mappings
                 .ForMember(dest => dest.BookId, act => act.MapFrom(src => src.BookId))
                 .ForMember(dest => dest.Quantity, act => act.MapFrom(src => src.Quantity))
                 .ForMember(dest => dest.Price, act => act.MapFrom(src => src.Price))
-                .ForMember(dest => dest.StatusId, act => act.MapFrom(src => src.StatusId));
+                .ForMember(dest => dest.StatusId, act => act.MapFrom(src => src.StatusId))
+                .ReverseMap();
+            CreateMap<NewCartItemDto, CartItemDto>()
+                .ForMember(dest => dest.CartId, act => act.MapFrom(src => src.CartId))
+                .ForMember(dest => dest.BookId, act => act.MapFrom(src => src.BookId))
+                .ForMember(dest => dest.Price, act => act.MapFrom(src => src.Price))
+                .ForMember(dest => dest.StatusId, act => act.MapFrom(src => src.StatusId))
+                .AfterMap((src, dest) =>
+                {
+                    dest.BookName = GetBookName(src.BookId);
+                });
         }
 
         public String? GetBookName(String Id)

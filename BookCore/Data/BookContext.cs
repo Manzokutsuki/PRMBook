@@ -128,16 +128,17 @@ namespace BookCore.Data
 
             modelBuilder.Entity<TblCartItem>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => new { e.CartId, e.BookId })
+                    .HasName("PK__tblCartI__89E559CA4AD3575C");
 
                 entity.ToTable("tblCartItem");
+
+                entity.Property(e => e.CartId).HasColumnName("cartID");
 
                 entity.Property(e => e.BookId)
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("bookID");
-
-                entity.Property(e => e.CartId).HasColumnName("cartID");
 
                 entity.Property(e => e.Price)
                     .HasMaxLength(50)
@@ -155,13 +156,15 @@ namespace BookCore.Data
                     .HasColumnName("statusID");
 
                 entity.HasOne(d => d.Book)
-                    .WithMany()
+                    .WithMany(p => p.TblCartItems)
                     .HasForeignKey(d => d.BookId)
-                    .HasConstraintName("FK_tblCartItem_tblUser");
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tblCartItem_tblBook");
 
                 entity.HasOne(d => d.Cart)
-                    .WithMany()
+                    .WithMany(p => p.TblCartItems)
                     .HasForeignKey(d => d.CartId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tblCartItem_tblCart");
             });
 
@@ -196,7 +199,6 @@ namespace BookCore.Data
 
                 entity.Property(e => e.Address)
                     .HasMaxLength(50)
-                    .IsUnicode(false)
                     .HasColumnName("address");
 
                 entity.Property(e => e.Email)
@@ -206,7 +208,6 @@ namespace BookCore.Data
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(50)
-                    .IsUnicode(false)
                     .HasColumnName("name");
 
                 entity.Property(e => e.OrderDate)

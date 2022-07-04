@@ -52,7 +52,14 @@ namespace BookInfrasture.Mappings
                 .ForMember(dest => dest.Status, act => act.MapFrom(src => GetByte(src.Status)))
                 .ForMember(dest => dest.CategoryId, act => act.MapFrom(src => src.categoryDto.CategoryId))
                 .ForMember(dest => dest.PublisherName, act => act.MapFrom(src => src.publisher.name))
-                .ForMember(dest => dest.PublisherPhone, act => act.MapFrom(src => src.publisher.phone));
+                .ForMember(dest => dest.PublisherPhone, act => act.MapFrom(src => src.publisher.phone))
+                .AfterMap((src, dest) =>
+                {
+                    dest.Status = GetByte(src.Status);
+                    dest.CategoryId = src.categoryDto.CategoryId;
+                    dest.PublisherName = src.publisher.name;
+                    dest.PublisherPhone = src.publisher.phone;
+                });
         }
 
         private String? GetStatus(byte? Status)

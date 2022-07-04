@@ -19,6 +19,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(AutoMapperUser));
 builder.Services.AddAutoMapper(typeof(AutoMapperBook));
 builder.Services.AddAutoMapper(typeof(AutoMapperCategory));
+builder.Services.AddAutoMapper(typeof(AutomapperReceiver));
+builder.Services.AddAutoMapper(typeof(AutomapperReceiverDetail));
+builder.Services.AddAutoMapper(typeof(AutoMapperCart));
+builder.Services.AddAutoMapper(typeof(AutoMapperOrder));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
