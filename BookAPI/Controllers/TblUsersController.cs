@@ -9,6 +9,7 @@ using BookCore.Data;
 using BookCore.Entities;
 using AutoMapper;
 using BookCore.Dtos.User;
+using BookInfrasture.Utils;
 
 namespace BookAPI.Controllers
 {
@@ -145,8 +146,9 @@ namespace BookAPI.Controllers
             {
                 return NotFound();
             }
+            loginUser.Email = CommonUtils.FormatStringInput(loginUser.Email);
             var tblUser = await _context.TblUsers.SingleAsync(temp => temp.Email.ToLower().Equals(loginUser.Email)
-            || temp.Uid.Equals(loginUser.Uid));
+            || temp.Uid.Equals(loginUser.Uid.Trim()));
             if (tblUser == null)
             {
                 return NotFound();
@@ -182,8 +184,9 @@ namespace BookAPI.Controllers
 
         private bool AccountExists(String? email, String? uid)
         {
+            email = CommonUtils.FormatStringInput(email);
             return (_context.TblUsers?
-                .Any(e => e.Email.Equals(email) || e.Uid.Equals(uid)))
+                .Any(e => e.Email.ToLower().Equals(email) || e.Uid.Equals(uid)))
                 .GetValueOrDefault();
         }
 

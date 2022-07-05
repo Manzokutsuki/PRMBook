@@ -9,6 +9,7 @@ using BookCore.Data;
 using BookCore.Entities;
 using AutoMapper;
 using BookCore.Dtos.Cart;
+using BookInfrasture.Utils;
 
 namespace BookAPI.Controllers
 {
@@ -136,7 +137,7 @@ namespace BookAPI.Controllers
             {
                 return Problem("Cart does not exist");
             }
-
+            newCartItem.BookId = CommonUtils.FormatStringInput(newCartItem.BookId);
             var tblCartItem = await _context.TblCartItems.SingleOrDefaultAsync(cart =>
                 cart.CartId.Equals(newCartItem.CartId)
                 && cart.BookId.Equals(newCartItem.BookId));
@@ -145,6 +146,12 @@ namespace BookAPI.Controllers
                 return NotFound();
             }
 
+            var tblBook = IncreaseBookQuantity(newCartItem.BookId, Int32.Parse(newCartItem.Quantity));
+            if (tblBook == null)
+            {
+                return Problem("Cannot increase book's quantity from removed cart");
+            }
+            _context.TblBooks.Update(tblBook);
             _context.TblCartItems.Remove(tblCartItem);
             await _context.SaveChangesAsync();
 
@@ -154,6 +161,18 @@ namespace BookAPI.Controllers
         private bool TblCartItemExists(int id)
         {
             return (_context.TblCartItems?.Any(e => e.CartId == id)).GetValueOrDefault();
+        }
+
+        private TblBook IncreaseBookQuantity(string BookID, int Quantity)
+        {
+            var tblBook = new TblBook();
+            BookID = CommonUtils.FormatStringInput(BookID);
+            tblBook = _context.TblBooks.SingleOrDefault(book => book.Id.ToLower().Equals(BookID));
+            if (tblBook != null)
+            {
+                tblBook.Quantity += Quantity;
+            }
+            return tblBook;
         }
     }
 }

@@ -9,6 +9,7 @@ using BookCore.Data;
 using BookCore.Entities;
 using AutoMapper;
 using BookCore.Dtos.Book;
+using BookInfrasture.Utils;
 
 namespace BookAPI.Controllers
 {
@@ -56,6 +57,7 @@ namespace BookAPI.Controllers
           {
               return NotFound();
           }
+            id = CommonUtils.FormatStringInput(id);
             var temp = await _context.TblBooks.FindAsync(id);
 
             if (temp == null)
@@ -76,7 +78,6 @@ namespace BookAPI.Controllers
             {
                 return BadRequest();
             }
-
             var tblBook = _mapper.Map<TblBook>(basicBook);
 
             _context.Entry(tblBook).State = EntityState.Modified;
@@ -162,8 +163,8 @@ namespace BookAPI.Controllers
         {
             if (Name != null && CategoryId != null)
             {
-                Name = Name.Trim().ToLower();
-                CategoryId = CategoryId.Trim().ToLower();
+                Name = CommonUtils.FormatStringInput(Name);
+                CategoryId = CommonUtils.FormatStringInput(CategoryId);
                 var ListTemp = new List<TblBook>();
                 foreach (var book in Books)
                 {
@@ -171,7 +172,7 @@ namespace BookAPI.Controllers
                     if (Temp != null)
                     {
                         if (Temp.Equals(CategoryId) &&
-                            book.Name.ToLower().Contains(Name))
+                            book.Name.ToLower().Trim().Contains(Name))
                         {
                             ListTemp.Add(book);
                         }
@@ -180,12 +181,12 @@ namespace BookAPI.Controllers
             }
             else if (Name != null)
             {
-                Name = Name.Trim().ToLower();
-                Books = Books.Where(book => book.Name.ToLower().Contains(Name)).ToList();
+                Name = CommonUtils.FormatStringInput(Name);
+                Books = Books.Where(book => book.Name.ToLower().Trim().Contains(Name)).ToList();
             }
             else if (CategoryId != null)
             {
-                CategoryId = CategoryId.Trim().ToLower();
+                CategoryId = CommonUtils.FormatStringInput(CategoryId);
                 var ListTemp = new List<TblBook>();
                 foreach (var book in Books)
                 {

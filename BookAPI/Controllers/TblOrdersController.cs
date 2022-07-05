@@ -9,6 +9,7 @@ using BookCore.Data;
 using BookCore.Entities;
 using AutoMapper;
 using BookCore.Dtos.Order;
+using BookInfrasture.Utils;
 
 namespace BookAPI.Controllers
 {
@@ -44,6 +45,7 @@ namespace BookAPI.Controllers
           {
               return NotFound();
           }
+            id = CommonUtils.FormatStringInput(id);
             var tblOrder = await _context.TblOrders.FindAsync(id);
 
             if (tblOrder == null)
@@ -67,6 +69,7 @@ namespace BookAPI.Controllers
               return Problem("Entity set 'BookContext.TblOrders'  is null.");
           }
 
+          orderDto.OrderId = System.Guid.NewGuid().ToString();
             var tblOrder = _mapper.Map<TblOrder>(orderDto);
             _context.TblOrders.Add(tblOrder);
             try
@@ -98,7 +101,7 @@ namespace BookAPI.Controllers
             var tempOrderList = new List<OrderDto>();
             if (userId != null && userId.Any())
             {
-                userId = userId.ToLower().Trim();
+                userId = userId.Trim();
 
                 var Tblorders = _context.TblOrders
                     .Where(order => order.UserId.ToLower().Equals(userId))

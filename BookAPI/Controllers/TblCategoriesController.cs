@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using BookCore.Data;
 using BookCore.Dtos.Category;
 using AutoMapper;
+using BookInfrasture.Utils;
 
 namespace BookAPI.Controllers
 {
@@ -47,6 +48,7 @@ namespace BookAPI.Controllers
           {
               return NotFound();
           }
+            id = CommonUtils.FormatStringInput(id);
             var tblCategory = await _context.TblCategories.FindAsync(id);
 
             if (tblCategory == null)

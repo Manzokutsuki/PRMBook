@@ -9,6 +9,7 @@ using BookCore.Data;
 using BookCore.Entities;
 using BookCore.Dtos.Receiver;
 using AutoMapper;
+using BookInfrasture.Utils;
 
 namespace BookAPI.Controllers
 {
@@ -73,6 +74,12 @@ namespace BookAPI.Controllers
                 return BadRequest();
             }
 
+            tblReceiverDetailDto.Name = CommonUtils.FormatStringInput(tblReceiverDetailDto.Name);
+            tblReceiverDetailDto.Email = CommonUtils.FormatStringInput(tblReceiverDetailDto.Email);
+            tblReceiverDetailDto.Phone = CommonUtils.FormatStringInput(tblReceiverDetailDto.Phone);
+            tblReceiverDetailDto.Address = CommonUtils.FormatStringInput(tblReceiverDetailDto.Address);
+
+
             var checkExisted = _context.TblReceiverDetails.Any(receiver =>
             receiver.Id != id &&
             receiver.ReceiverId == tblReceiverDetailDto.ReceiverId &&
@@ -119,6 +126,11 @@ namespace BookAPI.Controllers
               return Problem("Entity set 'BookContext.TblReceiverDetails'  is null.");
           }
             var tblReceiverDetail = _mapper.Map<TblReceiverDetail>(dto);
+
+            tblReceiverDetail.Name = CommonUtils.FormatStringInput(tblReceiverDetail.Name);
+            tblReceiverDetail.Email = CommonUtils.FormatStringInput(tblReceiverDetail.Email);
+            tblReceiverDetail.Phone = CommonUtils.FormatStringInput(tblReceiverDetail.Phone);
+            tblReceiverDetail.Address = CommonUtils.FormatStringInput(tblReceiverDetail.Address);
 
             var checkExisted = _context.TblReceiverDetails.Any(receiver =>
             receiver.ReceiverId == tblReceiverDetail.ReceiverId &&

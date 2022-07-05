@@ -53,21 +53,23 @@ namespace BookAPI.Controllers
         }
 
         // GET: api/TblReceivers/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ReceiverDto>> GetTblReceiver(int id)
+        [HttpGet("{userId}")]
+        public async Task<ActionResult<ReceiverDto>> GetTblReceiver(string userId)
         {
           if (_context.TblReceivers == null)
           {
               return NotFound();
           }
-            var tblReceiver = await _context.TblReceivers.FindAsync(id);
+            userId = userId.Trim();
+            var tblReceiver = await _context.TblReceivers.SingleOrDefaultAsync(receiver => 
+            receiver.UserId.Trim().Equals(userId));
 
             if (tblReceiver == null)
             {
                 return NotFound();
             }
             var receiverDto = _mapper.Map<ReceiverDto>(tblReceiver);
-            var tempDetailList = GetDetailList(id);
+            var tempDetailList = GetDetailList(receiverDto.Id);
             if (tempDetailList != null)
             {
                 receiverDto.Detail = tempDetailList;
