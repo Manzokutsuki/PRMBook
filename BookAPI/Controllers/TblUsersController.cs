@@ -165,15 +165,25 @@ namespace BookAPI.Controllers
             {
                 return NotFound();
             }
-            var tblUser = await _context.TblUsers.FindAsync(id);
-            if (tblUser == null)
+            var user = await _context.TblUsers.FindAsync(id);
+            if (user == null)
             {
                 return NotFound();
             }
 
-            _context.TblUsers.Remove(tblUser);
-            await _context.SaveChangesAsync();
-
+            try
+            {
+                var receiver = GetReceiver(user);
+                var cart = GetCart(user);
+                user.TblReceivers.Add(receiver);
+                user.TblCarts.Add(cart);
+                _context.TblUsers.Remove(user);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception(ex.Message);
+            }
             return NoContent();
         }
 
@@ -192,9 +202,6 @@ namespace BookAPI.Controllers
 
         private TblReceiver AddReceiver(TblUser user)
         {
-            int? index = (from temp in _context.TblReceivers
-                         select temp.Id).Count();
-            index = index > 0 || index != null ? ++index : 1;
             TblReceiver receiver = new TblReceiver()
             {
                 UserId = user.UserId
@@ -223,6 +230,26 @@ namespace BookAPI.Controllers
             {
                 UserId = user.UserId
             };
+            return cart;
+        }
+
+        private TblReceiver GetReceiver(TblUser user)
+        {
+            TblReceiver receiver = _context.TblReceivers.FirstOrDefault(r => r.UserId == user.UserId);
+            if (receiver != null)
+            {
+                IEnumerable<TblReceiverDetail> receiverDetail = _context.TblReceiverDetails.Where(detail => detail.ReceiverId == receiver.Id);
+                if (receiverDetail.Any() && receiverDetail != null)
+                {
+                    receiver.TblReceiverDetails = receiverDetail.ToList();
+                }
+            }
+            return receiver;
+        }
+
+        private TblCart GetCart(TblUser user)
+        {
+            TblCart cart = _context.TblCarts.SingleOrDefault(cart => cart.UserId == user.UserId);
             return cart;
         }
     }
