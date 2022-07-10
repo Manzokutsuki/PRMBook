@@ -37,7 +37,7 @@ namespace BookInfrasture.Mappings
                     {
                         var BookID = orderDetail.BookId;
                         var BookName = GetBookName(BookID);
-                        var BookImage = GetBookName(BookID);
+                        var BookImage = GetBookImage(BookID);
                         var BookQuantity = orderDetail.Quantity;
                         var BookPrice = orderDetail.Price;
                         var publisherName = orderDetail.PublisherName;
