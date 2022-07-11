@@ -22,6 +22,7 @@ namespace BookInfrasture.Mappings
                 .AfterMap((src, dest) =>
                 {
                     dest.BookName = GetBookName(src.BookId);
+                    dest.Image = GetBookImage(src.BookId);
                 });
 
             CreateMap<CartItemDto, TblCartItem>()
@@ -39,6 +40,7 @@ namespace BookInfrasture.Mappings
             CreateMap<NewCartItemDto, CartItemDto>()
                 .ForMember(dest => dest.CartId, act => act.MapFrom(src => src.CartId))
                 .ForMember(dest => dest.BookId, act => act.MapFrom(src => src.BookId))
+                .ForMember(dest => dest.Image, act => act.MapFrom(src => src.Image))
                 .ForMember(dest => dest.Price, act => act.MapFrom(src => src.Price))
                 .ForMember(dest => dest.StatusId, act => act.MapFrom(src => src.StatusId))
                 .AfterMap((src, dest) =>
@@ -54,6 +56,15 @@ namespace BookInfrasture.Mappings
                 var BookName = context.TblBooks.Find(Id).Name;
                 return BookName != null ? BookName : null;
             }
+        }
+
+        public String? GetBookImage(string? BookID)
+        {
+            using (var context = new BookContext())
+            {
+                var image = context.TblBooks.Find(BookID).Image;
+                return image == null ? null : image;
+            };
         }
     }
 }

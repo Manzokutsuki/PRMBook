@@ -11,6 +11,7 @@ namespace BookCore.Dtos.Cart
         public int? CartId { get; set; }
         public string? BookId { get; set; }
         public string? BookName { get; set; }
+        public string? Image { get; set; }
         public string? Quantity { get; set; }
         public string? Price { get; set; }
         public string? StatusId { get; set; }
@@ -19,11 +20,12 @@ namespace BookCore.Dtos.Cart
         {
         }
 
-        public CartItemDto(int? cartId, string? bookId, string? bookName, string? quantity, string? price, string? statusId)
+        public CartItemDto(int? cartId, string? bookId, string? bookName, string? image, string? quantity, string? price, string? statusId)
         {
             CartId = cartId;
             BookId = bookId;
             BookName = bookName;
+            Image = image;
             Quantity = quantity;
             Price = price;
             StatusId = statusId;
