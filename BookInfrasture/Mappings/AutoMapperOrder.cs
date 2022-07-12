@@ -74,40 +74,34 @@ namespace BookInfrasture.Mappings
             .ForMember(dest => dest.Quantity, act => act.MapFrom(src => src.Quantity))
             .AfterMap((src, dest) =>
             {
-                var OrderDetailList = new List<TblOrderDetail>();
                 var OrderDate = src.OrderDetail.OrderDate;
                 var Name = src.OrderDetail.receiverDetail.Name;
                 var Phone = src.OrderDetail.receiverDetail.Phone;
                 var Address = src.OrderDetail.receiverDetail.Address;
                 var Email = src.OrderDetail.receiverDetail.Email;
-                var OrderDetailId = src.OrderDetail.OrderDetailId;
-                var OrderId = src.OrderId;
-                foreach (var book in src.OrderDetail.bookDetails)
-                {
-                    var BookId = book.Id;
-                    var BookQuantity = book.Quantity;
-                    var BookPrice = book.Price;
-                    var PublisherName = book.publisher.name;
-                    var PublisherPhone = book.publisher.phone;
-                    var TblOrderDetail = new TblOrderDetail()
-                    {
-                        OrderDetailId = OrderDetailId,
-                        OrderId = OrderId,
-                        BookId = BookId,
-                        PublisherName = PublisherName,
-                        PublisherPhone = PublisherPhone,
-                        Quantity = BookQuantity.ToString(),
-                        Price = BookPrice.ToString(),
-                    };
-                    OrderDetailList.Add(new TblOrderDetail());
-                }
                 dest.OrderDate = OrderDate;
                 dest.Name = Name;
                 dest.Phone = Phone;
                 dest.Address = Address;
                 dest.Email = Email;
-                dest.TblOrderDetails = OrderDetailList;
             });
+
+            CreateMap<OrderDetailDto, TblOrderDetail>()
+                .ForMember(dest => dest.OrderDetailId, act => act.MapFrom(src => src.OrderDetailId))
+                .ForMember(dest => dest.OrderId, act => act.MapFrom(src => src.OrderId))
+                .AfterMap((src, dest) =>
+                {
+                    foreach(var book in src.bookDetails)
+                    {
+                        var name = book.publisher.name;
+                        var phone = book.publisher.phone;
+                        dest.PublisherName = name;
+                        dest.PublisherPhone = phone;
+                        dest.BookId = book.Id;
+                        dest.Quantity = book.Quantity.ToString();
+                        dest.Price = book.Price.ToString();
+                    }
+                });
         }
 
         public String? GetBookName(string? BookID)

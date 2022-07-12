@@ -69,8 +69,34 @@ namespace BookAPI.Controllers
               return Problem("Entity set 'BookContext.TblOrders'  is null.");
           }
 
+            List<String> bookIDList = new List<String>();
+
+            foreach (var book in orderDto.OrderDetail.bookDetails)
+            {
+                bookIDList.Add(book.Id);
+            }
+
           orderDto.OrderId = System.Guid.NewGuid().ToString();
             var tblOrder = _mapper.Map<TblOrder>(orderDto);
+            List<TblOrderDetail> tblOrderDetails = new List<TblOrderDetail>();
+            foreach(var book in orderDto.OrderDetail.bookDetails)
+            {
+                List<OrderBookDetailDto> tblOrderBookDetails = new List<OrderBookDetailDto>();
+                tblOrderBookDetails.Add(book);
+                var temp = new OrderDetailDto()
+                {
+                    OrderDetailId = orderDto.OrderDetail.OrderDetailId,
+                    OrderId = orderDto.OrderDetail.OrderId,
+                    bookDetails = tblOrderBookDetails
+                };
+                var TblOrderDetail = _mapper.Map<TblOrderDetail>(temp);
+                if (TblOrderDetail != null)
+                {
+                    tblOrderDetails.Add(TblOrderDetail);
+                }
+            }
+            tblOrder.TblOrderDetails = tblOrderDetails;
+
             _context.TblOrders.Add(tblOrder);
             try
             {
@@ -163,6 +189,17 @@ namespace BookAPI.Controllers
                 }
             }
             return tempOrderList;
+        }
+
+        private IEnumerable<TblCartItem> GetTblCartItemsByBookID(List<String> bookIDList)
+        {
+            List<TblCartItem> cartItems = new List<TblCartItem>();
+            foreach(var id in bookIDList)
+            {
+                var cartItem = _context.TblCartItems.SingleOrDefault(cart => cart.BookId.Equals(id));
+                cartItems.Add(cartItem);
+            }
+            return cartItems;
         }
     }
 }
