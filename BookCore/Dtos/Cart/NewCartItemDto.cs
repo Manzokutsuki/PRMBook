@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BookCore.Dtos.Publisher;
 
 namespace BookCore.Dtos.Cart
 {
@@ -14,11 +10,12 @@ namespace BookCore.Dtos.Cart
         public string? Quantity { get; set; }
         public string? Price { get; set; }
         public string? StatusId { get; set; }
+        public PublisherDto Publisher { get; set; }
 
         public NewCartItemDto()
         {}
 
-        public NewCartItemDto(int? cartId, string? bookId, string? image, string? quantity, string? price, string? statusId)
+        public NewCartItemDto(int? cartId, string? bookId, string? image, string? quantity, string? price, string? statusId, PublisherDto publisher)
         {
             CartId = cartId;
             BookId = bookId;
@@ -26,6 +23,7 @@ namespace BookCore.Dtos.Cart
             Quantity = quantity;
             Price = price;
             StatusId = statusId;
+            Publisher = publisher;
         }
     }
 }

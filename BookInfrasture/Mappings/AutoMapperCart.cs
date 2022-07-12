@@ -2,6 +2,7 @@
 using BookCore.Entities;
 using BookCore.Dtos.Cart;
 using BookCore.Data;
+using BookCore.Dtos.Publisher;
 
 namespace BookInfrasture.Mappings
 {
@@ -23,6 +24,14 @@ namespace BookInfrasture.Mappings
                 {
                     dest.BookName = GetBookName(src.BookId);
                     dest.Image = GetBookImage(src.BookId);
+                    var publisherName = GetPublisherName(src.BookId);
+                    var publisherPhone = GetPublisherPhone(src.BookId);
+                    PublisherDto publisher = new PublisherDto()
+                    {
+                        name = publisherName,
+                        phone = publisherPhone
+                    };
+                    dest.publisher = publisher;
                 });
 
             CreateMap<CartItemDto, TblCartItem>()
@@ -46,6 +55,14 @@ namespace BookInfrasture.Mappings
                 .AfterMap((src, dest) =>
                 {
                     dest.BookName = GetBookName(src.BookId);
+                    var publisherName = GetPublisherName(src.BookId);
+                    var publisherPhone = GetPublisherPhone(src.BookId);
+                    PublisherDto publisher = new PublisherDto()
+                    {
+                        name = publisherName,
+                        phone = publisherPhone
+                    };
+                    dest.publisher = publisher;
                 });
         }
 
@@ -66,5 +83,24 @@ namespace BookInfrasture.Mappings
                 return image == null ? null : image;
             };
         }
+
+        public String? GetPublisherName(string? BookID)
+        {
+            using (var context = new BookContext())
+            {
+                var name = context.TblBooks.Find(BookID).PublisherName;
+                return name == null ? null : name;
+            };
+        }
+        public String? GetPublisherPhone(string? BookID)
+        {
+            using (var context = new BookContext())
+            {
+                var phone = context.TblBooks.Find(BookID).PublisherPhone;
+                return phone == null ? null : phone;
+            };
+        }
+
+
     }
 }
