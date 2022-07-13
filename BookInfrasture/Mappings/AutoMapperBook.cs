@@ -27,12 +27,13 @@ namespace BookInfrasture.Mappings
                 .ForMember(dest => dest.Page, act => act.MapFrom(src => src.Page))
                 .ForMember(dest => dest.ReleaseYear, act => act.MapFrom(src => src.ReleaseYear))
                 .ForMember(dest => dest.CreateDate, act => act.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.AuthorName, act => act.MapFrom(src => src.AuthorName))
                 .AfterMap((src, dest) =>
                 {
                     dest.Status = GetStatus(src.Status);
                     var name = GetCategoryName(src.CategoryId);
                     dest.categoryDto = new BookCore.Dtos.Category.CategoryDto(src.CategoryId, name);
-                    dest.publisher = new BookCore.Dtos.Publisher.PublisherDto(src.AuthorName, src.PublisherPhone);
+                    dest.publisher = new BookCore.Dtos.Publisher.PublisherDto(src.PublisherName, src.PublisherPhone);
                 })
                 ;
 
@@ -53,6 +54,7 @@ namespace BookInfrasture.Mappings
                 .ForMember(dest => dest.CategoryId, act => act.MapFrom(src => src.categoryDto.CategoryId))
                 .ForMember(dest => dest.PublisherName, act => act.MapFrom(src => src.publisher.name))
                 .ForMember(dest => dest.PublisherPhone, act => act.MapFrom(src => src.publisher.phone))
+                .ForMember(dest => dest.AuthorName, act => act.MapFrom(src => src.AuthorName))
                 .AfterMap((src, dest) =>
                 {
                     dest.Status = GetByte(src.Status);

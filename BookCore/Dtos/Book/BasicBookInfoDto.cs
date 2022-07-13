@@ -25,5 +25,6 @@ namespace BookCore.Dtos.Book
         public int? ReleaseYear { get; set; }
         public DateTime? CreateDate { get; set; }
         public String? Status { get; set; }
+        public string? AuthorName { get; set; }
     }
 }

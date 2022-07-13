@@ -16,12 +16,13 @@ namespace BookCore.Dtos.Cart
         public string? Quantity { get; set; }
         public string? Price { get; set; }
         public string? StatusId { get; set; }
+        public string? BookTotalQuantity { get; set; }
         public PublisherDto publisher { get; set; }
         public CartItemDto()
         {
         }
 
-        public CartItemDto(int? cartId, string? bookId, string? bookName, string? image, string? quantity, string? price, string? statusId, PublisherDto publisher)
+        public CartItemDto(int? cartId, string? bookId, string? bookName, string? image, string? quantity, string? price, string? statusId, string? bookTotalQuantity, PublisherDto publisher)
         {
             CartId = cartId;
             BookId = bookId;
@@ -30,6 +31,7 @@ namespace BookCore.Dtos.Cart
             Quantity = quantity;
             Price = price;
             StatusId = statusId;
+            BookTotalQuantity = bookTotalQuantity;
             this.publisher = publisher;
         }
     }

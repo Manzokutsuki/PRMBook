@@ -26,12 +26,14 @@ namespace BookInfrasture.Mappings
                     dest.Image = GetBookImage(src.BookId);
                     var publisherName = GetPublisherName(src.BookId);
                     var publisherPhone = GetPublisherPhone(src.BookId);
+                    var bookTotalQuantity = GetBookTotalQuantity(src.BookId);
                     PublisherDto publisher = new PublisherDto()
                     {
                         name = publisherName,
                         phone = publisherPhone
                     };
                     dest.publisher = publisher;
+                    dest.BookTotalQuantity = bookTotalQuantity;
                 });
 
             CreateMap<CartItemDto, TblCartItem>()
@@ -101,6 +103,13 @@ namespace BookInfrasture.Mappings
             };
         }
 
-
+        public String? GetBookTotalQuantity (string? BookID)
+        {
+            using (var context = new BookContext())
+            {
+                var quantity = context.TblBooks.Find(BookID).Quantity;
+                return quantity == null ? null : quantity.ToString();
+            };
+        }
     }
 }
