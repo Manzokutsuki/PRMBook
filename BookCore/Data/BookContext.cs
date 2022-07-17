@@ -71,9 +71,7 @@ namespace BookCore.Data
                     .HasMaxLength(50)
                     .HasColumnName("language");
 
-                entity.Property(e => e.Name)
-                    .HasMaxLength(50)
-                    .HasColumnName("name");
+                entity.Property(e => e.Name).HasColumnName("name");
 
                 entity.Property(e => e.Page).HasColumnName("page");
 
