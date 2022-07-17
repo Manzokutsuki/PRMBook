@@ -54,7 +54,7 @@ namespace BookAPI.Controllers
 
         // GET: api/TblCarts/5
         [HttpGet("{userId}")]
-        public async Task<ActionResult<CartDto>> GetTblCart(string userId)
+        public async Task<ActionResult<CartDto>> GetTblCart(string userId, string? bookId)
         {
             userId = userId.ToLower().Trim();
           if (_context.TblCarts == null)
@@ -69,12 +69,18 @@ namespace BookAPI.Controllers
                 return NotFound();
             }
 
-            return GetCartDto(tblCart);
+            return GetCartDto(tblCart, bookId);
         }
 
-        private CartDto GetCartDto(TblCart tblCart)
+        private CartDto GetCartDto(TblCart tblCart, string? bookId)
         {
             var cartDto = _mapper.Map<CartDto>(tblCart);
+            if (bookId != null)
+            {
+                var tempCartItemWithBooks = GetCartItems(tblCart.Id, bookId);
+                cartDto.cartItems = tempCartItemWithBooks;
+                return cartDto;
+            }
             var tempCartItems = GetCartItems(tblCart.Id);
             cartDto.cartItems = tempCartItems;
             return cartDto;
@@ -85,6 +91,22 @@ namespace BookAPI.Controllers
             var cartItems = new List<CartItemDto>();
             var list = _context.TblCartItems.Where(item =>
             item.CartId == Id).ToList();
+            if (list.Any() && list != null)
+            {
+                foreach (var item in list)
+                {
+                    var temp = _mapper.Map<CartItemDto>(item);
+                    cartItems.Add(temp);
+                }
+            }
+            return cartItems;
+        }
+
+        private List<CartItemDto>? GetCartItems(int Id, string bookId)
+        {
+            var cartItems = new List<CartItemDto>();
+            var list = _context.TblCartItems.Where(item =>
+            item.CartId == Id && item.BookId.Equals(bookId)).ToList();
             if (list.Any() && list != null)
             {
                 foreach (var item in list)
